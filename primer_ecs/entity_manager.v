@@ -1,11 +1,12 @@
-module ecs
+module primer_ecs
 
 pub type EntityID = u32
 pub type EntityGeneration = u32
 pub type EntityHandle = u64
 
 // -------------------- Pack / Unpack --------------------
-// Pack/unpack entity into u64 (high 32 = generation, low 32 = id)
+
+// pack_entity packs/unpacks entity into u64 (high 32 = generation, low 32 = id)
 fn pack_entity(entity_id EntityID, generation EntityGeneration) EntityHandle {
 	return (EntityHandle(generation) << 32) | EntityHandle(entity_id)
 }
@@ -59,6 +60,15 @@ pub fn (mut em EntityManager) destroy(entity EntityHandle) bool {
 	em.free_entities << id
 	em.alive_count--
 	return true
+}
+
+pub fn (mut em EntityManager) clear() {
+	em.free_entities.clear()
+	em.next_id = 0
+	em.alive_count = 0
+	for i in 0 .. em.generations.len {
+		em.generations[i] = 0
+	}
 }
 
 pub fn (em &EntityManager) size() int {
